@@ -36,7 +36,10 @@ ctest --output-on-failure    # 18 assertions, 0 failures
 
 ## Jump Trading relevance
 
-Jump builds SOR systems for routing outbound hedging orders across venues
-to minimise adverse selection and fees. This implementation covers:
-venue ranking, fee calculation, proportional splitting, fill tracking,
-and VWAP computation — all core SOR primitives.
+In a multi-venue market, the naive approach — route the full order to the best-priced venue — ignores two realities: available liquidity is fragmented across venues, and effective price includes fees.
+
+A buy order at NYSE ask $150.21 with $0.003 taker fee costs $150.213 effective. The same order at IEX ask $150.22 with $0.0009 fee costs $150.2209 effective — cheaper despite the worse quote. LowestFee captures this; BestPrice misses it.
+
+ProRata handles a third case: when market impact matters more than price — splitting proportionally to available qty minimises the footprint of a large order across venues.
+
+VWAP tracks the blended fill price across all child orders. Fill rate tracks residual. These are the primitives any production SOR needs regardless of strategy.
